@@ -6,7 +6,7 @@
 #include <iterator>
 using namespace std;
 
-struct Pesanan {
+struct Pesanan { // menyimpan data pesanan
     string namaPelanggan;
     string kodeMenu;
     string namaMenu;
@@ -14,51 +14,47 @@ struct Pesanan {
     Pesanan* next;
 };
 
-struct Menu {
+struct Menu { // menyimpan data menu
     int kodeKantin;
     string kodeMenu;
     string namaMenu;
     int harga;
 };
 
-struct Queue {
+struct Queue { // menyatakan struktur data dalam queue
     Pesanan* front;
     Pesanan* rear;
 };
 
-namespace antrian{
+namespace antrian{ //namespace untuk bagian pengelolaan data
 
-void createQueue(Queue &Q) { Q.front = nullptr; Q.rear = nullptr; }
+void createQueue(Queue &Q) { Q.front = nullptr; Q.rear = nullptr; } //membuat queue baru 
 
-inline bool isEmpty(const Queue &Q) {
+inline bool isEmpty(const Queue &Q) { //validasi data queue
     return Q.front == nullptr;
 }
 
-void enqueue(Queue &Q, string nama, string kode, string menu, int harga) {
+void enqueue(Queue &Q, string nama, string kode, string menu, int harga) { // menambahkan data kedalam antrian
     Pesanan* baru = new Pesanan{nama, kode, menu, harga, nullptr};
-    if (isEmpty(Q)) { Q.front = baru; Q.rear = baru; }
-    else { Q.rear->next = baru; Q.rear = baru; }
+    if (isEmpty(Q)) { Q.front = baru; Q.rear = baru; } // jika queue kosong
+    else { Q.rear->next = baru; Q.rear = baru; } // jika queue tidak kosong
 }
 
-void dequeue(Queue &Q) {
+void dequeue(Queue &Q) { //menghapus data dari queue
     if (!isEmpty(Q)) {
         Pesanan* hapus = Q.front;
-        cout << "Pesanan " << hapus->namaPelanggan 
-             << " (" << hapus->namaMenu << ") selesai.\n";
+        cout << "Pesanan " << hapus->namaPelanggan << " (" << hapus->namaMenu << ") selesai.\n";
         Q.front = Q.front->next;
         delete hapus;
         if (Q.front == nullptr) Q.rear = nullptr;
-    } else cout << "Queue kosong.\n";
+    } else cout << "Queue kosong.\n"; 
 }
 
-void tampilNormal(Pesanan* p) {
-    cout << p->namaPelanggan
-         << " - "
-         << p->namaMenu
-         << " (Rp" << p->harga << ")\n";
+void tampilNormal(Pesanan* p) { //menampilkan data pesanan
+    cout << p->namaPelanggan << " - " << p->namaMenu << " (Rp" << p->harga << ")\n";
 }
 
-void printQueue(Queue Q, void (*callback)(Pesanan*)) {
+void printQueue(Queue Q, void (*callback)(Pesanan*)) { //traversal queue
     if (isEmpty(Q)) {
         cout << "Queue kosong.\n";
         return;
@@ -66,7 +62,7 @@ void printQueue(Queue Q, void (*callback)(Pesanan*)) {
 
     Pesanan* bantu = Q.front;
 
-    while (bantu) {
+    while (bantu) { 
         callback(bantu);
         bantu = bantu->next;
     }
@@ -74,7 +70,7 @@ void printQueue(Queue Q, void (*callback)(Pesanan*)) {
 }
 
 namespace fiturkantin{
-// Tambah menu ke file
+// Tambah menu ke file .txt
 void tambahMenu(string file, int kodeKantin) {
     ofstream fout(file, ios::app);
     string kodeUnik, nama;
@@ -83,7 +79,7 @@ void tambahMenu(string file, int kodeKantin) {
     cout << "Masukkan nama menu: "; cin.ignore(); getline(cin, nama);
     cout << "Masukkan harga: ";
     cin >> harga;
-    try {
+    try { //Exception Handling untuk validasi input harga
     if (harga <= 0)
         throw harga;
     }
@@ -96,25 +92,25 @@ void tambahMenu(string file, int kodeKantin) {
     cout << "Menu berhasil ditambahkan.\n";
 }
 
-// Tampilkan menu sesuai kode kantin
+// menampilkan menu berdasarkan kode kantin
 void tampilMenu(string file, int kodeKantin) {
-    ifstream fin(file);
-    string kodeK, kodeU, nama;
-    int harga;
-    cout << "\n=== Menu Kantin ===\n";
-    while (getline(fin, kodeK, ',')) {
-        getline(fin, kodeU, ',');
-        getline(fin, nama, ',');
-        fin >> harga;
-        fin.ignore();
-        if (stoi(kodeK) == kodeKantin) {
-            cout << kodeU << " - " << nama << " (Rp" << harga << ")\n";
+    vector<Menu> daftar = bacaSemuaMenu(file);
+    for(auto it = daftar.begin(); it != daftar.end(); ++it){
+        if(it->kodeKantin == kodeKantin){
+            cout<< it->kodeMenu<< " - " << it->namaMenu << " (Rp" << it->harga << ")\n";
         }
     }
-    fin.close();
 }
 
-vector<Menu> bacaSemuaMenu(string file) {
+void tampilMenu(string file){ //menampilkan seluruh menu
+    vector<Menu> daftar = bacaSemuaMenu(file);
+    cout << "\n=== SEMUA MENU ===\n";
+    for(auto it = daftar.begin(); it != daftar.end(); ++it){
+        cout << "[" << it->kodeKantin << "] " << it->kodeMenu << " - " << it->namaMenu << " (Rp" << it->harga << ")\n";
+    }
+}
+
+vector<Menu> bacaSemuaMenu(string file) { //menyimpan data dalam vector
     vector<Menu> daftarMenu;
     ifstream fin(file);
     string kodeK, kodeU, nama;
@@ -140,25 +136,11 @@ vector<Menu> bacaSemuaMenu(string file) {
     return daftarMenu;
 }
 
-void tampilVectorMenu(string file) {
+void urutHarga(string file) { //mengurutkan data menu dari harga terkecil
     vector<Menu> data = bacaSemuaMenu(file);
-    vector<Menu>::iterator it;
-
-    cout << "\n=== DATA VECTOR ===\n";
-    for(it = data.begin(); it != data.end(); ++it) {
-        cout << it->namaMenu << " - Rp" << it->harga << endl;
-    }
-}
-
-void urutHarga(string file) {
-
-    vector<Menu> data = bacaSemuaMenu(file);
-    sort(data.begin(),
-         data.end(),
-         [](Menu a, Menu b)
-         {
-             return a.harga < b.harga;
-         });
+    sort(data.begin(), data.end(), [](Menu a, Menu b){
+        return a.harga < b.harga;
+    });
 
     cout << "\n=== MENU TERMURAH ===\n";
     for(auto m : data) {
@@ -166,43 +148,15 @@ void urutHarga(string file) {
     }
 }
 
-void hitungMenuKantin(string file, int kodeKantin){
+void hitungMenuKantin(string file, int kodeKantin){ //menghitung jumlah menu
     vector<Menu> data = bacaSemuaMenu(file);
     
-    int jumlah =
-        count_if(
-            data.begin(),
-            data.end(),
-            [kodeKantin](Menu m)
-            {
-                return m.kodeKantin == kodeKantin;
-            }
-        );
+    int jumlah = count_if(data.begin(), data.end(), [kodeKantin](Menu m){
+        return m.kodeKantin == kodeKantin;
+        }
+    );
 
     cout << "\nJumlah menu : " << jumlah << endl;
-}
-
-void tampilMenu(string file){
-    ifstream fin(file);
-
-    string kodeK, kodeU, nama;
-    int harga;
-
-    cout << "\n=== SEMUA MENU ===\n";
-
-    while (getline(fin, kodeK, ',')) {
-        getline(fin, kodeU, ',');
-        getline(fin, nama, ',');
-        fin >> harga;
-        fin.ignore();
-
-        cout << "[" << kodeK << "] "
-             << kodeU << " - "
-             << nama << " (Rp"
-             << harga << ")\n";
-    }
-
-    fin.close();
 }
 
 // Cari menu berdasarkan kode unik + kode kantin
@@ -239,7 +193,7 @@ void menuIbuKantin(string file, int kodeKantin, Queue &Q) {
                 fiturkantin::tampilMenu(file, kodeKantin); 
                 break;
             case 3: 
-                antrian::printQueue(Q, antrian::tampilNormal); 
+                antrian::printQueue(Q, antrian::tampilNormal); //callbackl function
                 break;
             case 4: 
                 antrian::dequeue(Q); 
@@ -256,7 +210,7 @@ void menuPelanggan(string file, Queue &kantinMakananBerat, Queue &kantinMinuman,
     int pilihan;
     do {
         cout << "\n--- Menu Pelanggan ---\n";
-        cout << "1. Lihat menu kantin\n2. Pesan menu\n3. Semua menu\n4. Tampilkan data vector\n5. Urutkan menu termurah\n0. Kembali\n";
+        cout << "1. Lihat menu kantin\n2. Pesan menu\n3. Semua menu\n4. Urutkan menu termurah\n0. Kembali\n";
         cout << "Pilihan: "; cin >> pilihan;
 
         switch(pilihan) {
@@ -294,11 +248,7 @@ void menuPelanggan(string file, Queue &kantinMakananBerat, Queue &kantinMinuman,
                 break;
             
             case 4:
-                tampilVectorMenu(file);
-                break;
-
-            case 5:
-                urutHarga(file);
+                urutHarga(file);;
                 break;
         }
     } while(pilihan != 0);
