@@ -1,7 +1,8 @@
-1,101,ayam,12000
-1,103,nasi,500
-2,202,air,100
-2,201,jus,500
-3,301,keripik,300
-3,304,roti,250
-1,101,nasgor,10000
+1,101,nasi ayam bakar,15000
+1,102,nasi ayam penyet,15000
+1,103,nasi goreng,10000
+2,202,aqua,5000
+2,201,coca cola,5000
+3,301,keripik,2000
+3,304,roti bakar,10000
+
