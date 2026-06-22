@@ -54,7 +54,7 @@ void tampilNormal(Pesanan* p) { //menampilkan data pesanan
     cout << p->namaPelanggan << " - " << p->namaMenu << " (Rp" << p->harga << ")\n";
 }
 
-void printQueue(Queue Q, void (*callback)(Pesanan*)) { //traversal queue
+void printQueue(Queue Q, void (*callback)(Pesanan*)) { //traversal queue dan callback function (tampilNormal)
     if (isEmpty(Q)) {
         cout << "Queue kosong.\n";
         return;
@@ -70,9 +70,36 @@ void printQueue(Queue Q, void (*callback)(Pesanan*)) { //traversal queue
 }
 
 namespace fiturkantin{
+
+vector<Menu> bacaSemuaMenu(string file) { //membaca dan menyimpan data dalam vector
+    vector<Menu> daftarMenu;
+    ifstream fin(file);
+    string kodeK, kodeU, nama;
+    int harga;
+
+    while (getline(fin, kodeK, ',')) {
+
+        getline(fin, kodeU, ',');
+        getline(fin, nama, ',');
+
+        fin >> harga;
+        fin.ignore();
+
+        Menu m;
+        m.kodeKantin = stoi(kodeK);
+        m.kodeMenu = kodeU;
+        m.namaMenu = nama;
+        m.harga = harga;
+        daftarMenu.push_back(m);
+    }
+
+    fin.close();
+    return daftarMenu;
+}
+
 // Tambah menu ke file .txt
 void tambahMenu(string file, int kodeKantin) {
-    ofstream fout(file, ios::app);
+    ofstream fout(file, ios::app); //file handling
     string kodeUnik, nama;
     int harga;
     cout << "Masukkan kode unik menu: "; cin >> kodeUnik;
@@ -110,35 +137,11 @@ void tampilMenu(string file){ //menampilkan seluruh menu
     }
 }
 
-vector<Menu> bacaSemuaMenu(string file) { //menyimpan data dalam vector
-    vector<Menu> daftarMenu;
-    ifstream fin(file);
-    string kodeK, kodeU, nama;
-    int harga;
 
-    while (getline(fin, kodeK, ',')) {
-
-        getline(fin, kodeU, ',');
-        getline(fin, nama, ',');
-
-        fin >> harga;
-        fin.ignore();
-
-        Menu m;
-        m.kodeKantin = stoi(kodeK);
-        m.kodeMenu = kodeU;
-        m.namaMenu = nama;
-        m.harga = harga;
-        daftarMenu.push_back(m);
-    }
-
-    fin.close();
-    return daftarMenu;
-}
 
 void urutHarga(string file) { //mengurutkan data menu dari harga terkecil
     vector<Menu> data = bacaSemuaMenu(file);
-    sort(data.begin(), data.end(), [](Menu a, Menu b){
+    sort(data.begin(), data.end(), [](Menu a, Menu b){ //menggunakan STL sort
         return a.harga < b.harga;
     });
 
@@ -151,7 +154,7 @@ void urutHarga(string file) { //mengurutkan data menu dari harga terkecil
 void hitungMenuKantin(string file, int kodeKantin){ //menghitung jumlah menu
     vector<Menu> data = bacaSemuaMenu(file);
     
-    int jumlah = count_if(data.begin(), data.end(), [kodeKantin](Menu m){
+    int jumlah = count_if(data.begin(), data.end(), [kodeKantin](Menu m){ //menggunakan STL count
         return m.kodeKantin == kodeKantin;
         }
     );
@@ -168,7 +171,7 @@ bool cariMenu(string file, int kodeKantin, string kodeCari, string &nama, int &h
         getline(fin, nama, ',');
         fin >> harga;
         fin.ignore();
-        if (stoi(kodeK) == kodeKantin && kodeU == kodeCari) {
+        if (stoi(kodeK) == kodeKantin && kodeU == kodeCari) { //mengubah string kodeK menjadi int
             fin.close();
             return true;
         }
@@ -232,12 +235,12 @@ void menuPelanggan(string file, Queue &kantinMakananBerat, Queue &kantinMinuman,
                 cin.ignore(); getline(cin, nama);
                 cout << "Masukkan kode menu: "; cin >> kode;
 
-                Queue* targetQueue;
+                Queue* targetQueue; //menentukan antrian pesanan
                 if (pilihKantin == 1) targetQueue = &kantinMakananBerat;
                 else if (pilihKantin == 2) targetQueue = &kantinMinuman;
                 else targetQueue = &kantinRingan;
 
-                if (cariMenu(file, pilihKantin, kode, menu, harga)) {
+                if (cariMenu(file, pilihKantin, kode, menu, harga)) { //validasi kode pesanan
                     antrian::enqueue(*targetQueue, nama, kode, menu, harga);
                     cout << "Pesanan berhasil ditambahkan.\n";
                 } else cout << "Kode menu tidak ditemukan.\n";
@@ -257,7 +260,7 @@ void menuPelanggan(string file, Queue &kantinMakananBerat, Queue &kantinMinuman,
 }
 
 int main() {
-    Queue kantinMakananBerat, kantinMinuman, kantinRingan;
+    Queue kantinMakananBerat, kantinMinuman, kantinRingan; //deklarasi queue
     antrian::createQueue(kantinMakananBerat);
     antrian::createQueue(kantinMinuman);
     antrian::createQueue(kantinRingan);
@@ -274,39 +277,40 @@ int main() {
         if (role == 1) {
             int kantin;
             do {
+                cout << "\n=== PILIH KANTIN ===\n";
+                cout << "1. Makanan Berat\n";
+                cout << "2. Minuman\n";
+                cout << "3. Makanan Ringan\n";
+                cout << "0. Kembali\n";
+                cout << "Pilihan: ";
+                cin >> kantin;
 
-            cout << "\n=== PILIH KANTIN ===\n";
-            cout << "1. Makanan Berat\n";
-            cout << "2. Minuman\n";
-            cout << "3. Makanan Ringan\n";
-            cout << "0. Kembali\n";
-            cout << "Pilihan: ";
-            cin >> kantin;
+                Queue* targetQueue = nullptr;
+                int kodeKantin;
 
-            Queue* targetQueue = nullptr;
-            int kodeKantin;
+                if (kantin == 1) {
+                    targetQueue = &kantinMakananBerat;
+                    kodeKantin = 1;
+                }
+                else if (kantin == 2) {
+                    targetQueue = &kantinMinuman;
+                    kodeKantin = 2;
+                }
+                else if (kantin == 3) {
+                    targetQueue = &kantinRingan;
+                    kodeKantin = 3;
+                }
 
-            if (kantin == 1) {
-                targetQueue = &kantinMakananBerat;
-                kodeKantin = 1;
-            }
-            else if (kantin == 2) {
-                targetQueue = &kantinMinuman;
-                kodeKantin = 2;
-            }
-            else if (kantin == 3) {
-                targetQueue = &kantinRingan;
-                kodeKantin = 3;
-            }
-
-            if (kantin >= 1 && kantin <= 3) {
-                fiturkantin::menuIbuKantin(file, kodeKantin, *targetQueue);
-            }
+                if (kantin >= 1 && kantin <= 3) { //validasi input hanya 1-3
+                    fiturkantin::menuIbuKantin(file, kodeKantin, *targetQueue);
+                }
+                else if (kantin != 0) {
+                    cout << "Pilihan tidak valid!\n";
+                }
 
             } while (kantin != 0);
         
-        }
-        else if (role == 2) {
+        }else if (role == 2) {
             fiturkantin::menuPelanggan(file, kantinMakananBerat, kantinMinuman, kantinRingan);
         }
     } while(role != 0);
