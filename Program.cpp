@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 using namespace std;
 
 struct Pesanan { // menyimpan data pesanan
@@ -74,26 +75,31 @@ namespace fiturkantin{
 vector<Menu> bacaSemuaMenu(string file) { //membaca dan menyimpan data dalam vector
     vector<Menu> daftarMenu;
     ifstream fin(file);
-    string kodeK, kodeU, nama;
-    int harga;
+    string line;
 
-    while (getline(fin, kodeK, ',')) {
+    while (getline(fin, line))
+    {
+        if (line.empty()) continue;
 
-        getline(fin, kodeU, ',');
-        getline(fin, nama, ',');
+        stringstream ss(line); //memecah kalimat menjadi beberapa bagian
+        string kodeK, kodeU, nama, hargaStr; //dibagi dengan format
+        getline(ss, kodeK, ','); 
+        getline(ss, kodeU, ',');
+        getline(ss, nama, ',');
+        getline(ss, hargaStr);
 
-        fin >> harga;
-        fin.ignore();
+        if (kodeK.empty() || hargaStr.empty())
+            continue;
 
-        Menu m;
+        Menu m; //membuat objek
         m.kodeKantin = stoi(kodeK);
         m.kodeMenu = kodeU;
         m.namaMenu = nama;
-        m.harga = harga;
+        m.harga = stoi(hargaStr);
+
         daftarMenu.push_back(m);
     }
 
-    fin.close();
     return daftarMenu;
 }
 
