@@ -256,13 +256,13 @@ void menuPelanggan(string file, Queue &kantinMakananBerat, Queue &kantinMinuman,
     int pilihan;
     do {
         cout << "\n--- Menu Pelanggan ---\n";
-        cout << "1. Lihat menu kantin\n2. Pesan menu\n3. Semua menu\n0. Kembali\n";
+        cout << "1. Lihat menu kantin\n2. Pesan menu\n3. Semua menu\n4. Tampilkan data vector\n5. Urutkan menu termurah\n0. Kembali\n";
         cout << "Pilihan: "; cin >> pilihan;
 
         switch(pilihan) {
             case 1: {
                 int pilihKantin;
-                cout << "Pilih kantin:\n1. Makanan Berat\n2. Minuman\n3. Makanan Ringan\n4. Tampilkan data vector\n5. Urutkan menu termurah\nPilihan: ";
+                cout << "Pilih kantin:\n1. Makanan Berat\n2. Minuman\n3. Makanan Ringan\nPilihan: ";
                 cin >> pilihKantin;
                 tampilMenu(file, pilihKantin);
                 break;
