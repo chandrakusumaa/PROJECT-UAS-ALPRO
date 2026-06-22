@@ -6,3 +6,4 @@
 3,301,keripik,2000
 3,304,roti bakar,10000
 
+1,104,ketoprak,15000
